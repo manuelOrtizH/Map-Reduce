@@ -1,2 +1,2 @@
 # Map-Reduce
-Final Project from the Advanced Programming class
+A MapReduce implementation in C programming. 
