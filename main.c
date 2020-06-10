@@ -11,43 +11,68 @@
 #include "map.h"
 struct stat sb;
 
-void mapper(struct stat *sb ,char *file_in_memory){
-    Map *mapper;
-    int inicio = 0;
-    int final;
-    char* str = malloc(20); //Se inicializa un nuevo string, el cual será la key
-    Map map; //Se inicializa el mapa en general. Necesitamos un solo mapa por cada llamada a este método
-    for(int i = 0; i<sb->st_size; i++){ //sb->st_size es igual al tamaño de todo el archivo
-        if((file_in_memory[i] >= 'a' && file_in_memory[i] <= 'z') || (file_in_memory[i] >= 'A' && file_in_memory[i] <= 'Z')){
-            //En el if se asegura que sean letras y no comas, apóstrofes, o cualquier otro símbolo que no sea letra
-            strncat(str, &file_in_memory[i],1); //Le voy pegando al string un nuevo caracter
-        }else{ //Cuando encuentre un espacio, coma, apóstrofe, etc, etc, deja de pegarle caracteres al string
-            Entrada entrada_nueva; //Se crea una struct Entrada, la cual será una nueva entrada
-            entrada_nueva.key = str; //Se asigna el string completo al key de la struct Entrada
-            printf("The string to add to the map is: %s\n", entrada_nueva.key);
-            entrada_nueva.value = 1;
-            map.entradas = &entrada_nueva; //Se asigna una entrada struct nueva a la Struct Mapa
-            memset(str,0,strlen(str)); //Se resetea el string para que no se le agregue cosas al string pasado
-            
-        }
-        
-    }
 
+int map_code(char *key){
+    long int value = 0;
+    int i;
+    for(i = 0; i < strlen(key); i++){
+        value = value * 1 + key[i];
+    }
+    return value % 2000;
+}
+
+Mapa *crear_mapa(void){
+    Mapa *mapa =  malloc(sizeof(Mapa));
+    mapa->entradas = malloc(sizeof(Entrada*) * 4000);
+    for(int i = 0; i<4000; ++i){
+        mapa->entradas[i] = NULL;
+    }
+    return mapa;
+}
+
+void mapper(struct stat *sb ,char *file_in_memory, Mapa *mapa){
+    char* str = malloc(20);
     
+    for(int i = 0; i<sb->st_size; i++){ 
+        if((file_in_memory[i] >= 'a' && file_in_memory[i] <= 'z') || (file_in_memory[i] >= 'A' && file_in_memory[i] <= 'Z')){
+            strncat(str, &file_in_memory[i],1); 
+        }else{ 
+            Entrada *entrada = (Entrada *) malloc(sizeof(Entrada));
+            entrada->key = str;
+            int code = map_code(str);
+            if(mapa->entradas[code] == NULL){
+                entrada->value = 1;
+                mapa->entradas[code] = entrada;
+            }else{
+                mapa->entradas[code]->value++;
+            }
+            
+            //printf("El str es %s con Codigo %d\n", entrada->key, code);
+            memset(str,0,strlen(str)); 
+        }
+    }
 }
 
 
+void busca(Mapa *mapa){
+    char* str = "home";
+    int code_to_look = map_code(str);
+    printf("El code_to_look es %d\n", code_to_look);
+    printf("This is the value of Home %d\n", mapa->entradas[code_to_look]->value);
 
+}
 
 
 int main(int argc, const char* argv[]){
+    Mapa * mapa = crear_mapa();
     int f_map = open("./Files/home.txt", O_RDONLY, S_IRUSR | S_IWUSR);
     if (fstat(f_map, &sb) == -1)
         perror("Error en size ");
     printf("El tamaño del archivo es: %lld\n", sb.st_size);
     //Guardamos en un apuntador el archivo
     char *file_in_memory = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, f_map, 0);
-    mapper(&sb, file_in_memory);
+    mapper(&sb, file_in_memory, mapa);
+    busca(mapa);
     //IMPRIMIR TODO EL FILE EN LA CONSOLA:
 
     printf("\n");//*/
