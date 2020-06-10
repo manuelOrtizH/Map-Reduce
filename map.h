@@ -1,10 +1,10 @@
 typedef struct KeyValue{
     char* key; //El string
     int value; //Num de repeticiones en el texto (Siempre será uno)
-} KeyValue;
+} Entrada;
 
 typedef struct Map{
-    KeyValue **entradas;
+    Entrada *entradas;
 } Map;
 
 
