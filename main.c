@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include "map.h"
 struct stat sb;
-
+char *file_in_memory;
 
 int map_code(char *key){
     long int value = 0;
@@ -24,55 +24,81 @@ int map_code(char *key){
 Mapa *crear_mapa(void){
     Mapa *mapa =  malloc(sizeof(Mapa));
     mapa->entradas = malloc(sizeof(Entrada*) * 4000);
-    for(int i = 0; i<4000; ++i){
+    for(int i = 0; i<sb.st_size/3; i++){
         mapa->entradas[i] = NULL;
     }
     return mapa;
 }
 
-void mapper(struct stat *sb ,char *file_in_memory, Mapa *mapa){
-    char* str = malloc(20);
-    
-    for(int i = 0; i<sb->st_size; i++){ 
-        if((file_in_memory[i] >= 'a' && file_in_memory[i] <= 'z') || (file_in_memory[i] >= 'A' && file_in_memory[i] <= 'Z')){
+Mapa* mapper(int from, int to){
+    int counter = 0;
+    char* str = malloc(30);
+    Mapa * mapa = crear_mapa();
+    for(int i = from; i<=to; i++){ 
+        if((file_in_memory[i] >= 'a' && file_in_memory[i] <= 'z') || (file_in_memory[i] >= 'A' && file_in_memory[i] <= 'Z') ){
             strncat(str, &file_in_memory[i],1); 
         }else{ 
             Entrada *entrada = (Entrada *) malloc(sizeof(Entrada));
-            entrada->key = str;
-            int code = map_code(str);
-            if(mapa->entradas[code] == NULL){
-                entrada->value = 1;
-                mapa->entradas[code] = entrada;
-            }else{
-                mapa->entradas[code]->value++;
-            }
-            
-            //printf("El str es %s con Codigo %d\n", entrada->key, code);
+            strcpy(entrada->key, str);
+            entrada->value = 1;
+            mapa->entradas[counter] = entrada;
+            counter++;
             memset(str,0,strlen(str)); 
         }
     }
+    mapa->counterWords = counter;
+    return mapa;
 }
-
 
 void busca(Mapa *mapa){
-    char* str = "home";
-    int code_to_look = map_code(str);
-    printf("El code_to_look es %d\n", code_to_look);
-    printf("This is the value of Home %d\n", mapa->entradas[code_to_look]->value);
+    
+    for(int i = 0; i<mapa->counterWords; i++){
+        printf("The key of this map is: %s   .The value of the string is: %d\n", mapa->entradas[i]->key, mapa->entradas[i]->value);
+    }
 
 }
+
 
 
 int main(int argc, const char* argv[]){
-    Mapa * mapa = crear_mapa();
+    Mapa *mapa1 = NULL;
+    Mapa *mapa2 = NULL;
+    Mapa *mapa3 = NULL;
     int f_map = open("./Files/home.txt", O_RDONLY, S_IRUSR | S_IWUSR);
     if (fstat(f_map, &sb) == -1)
         perror("Error en size ");
     printf("El tamaño del archivo es: %lld\n", sb.st_size);
+    
     //Guardamos en un apuntador el archivo
-    char *file_in_memory = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, f_map, 0);
-    mapper(&sb, file_in_memory, mapa);
-    busca(mapa);
+    file_in_memory = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, f_map, 0);
+    pid_t p1, p2, p3;
+    /*if((p1=fork())== 0){
+       mapa1 = mapper(0, sb.st_size/3);
+       sleep(1);
+    }else if((p2=fork())==0){
+       mapa2 = mapper(sb.st_size/3, sb.st_size/3+sb.st_size/3);
+       sleep(1);
+    }else if((p3=fork())==0){
+       mapa3 = mapper(sb.st_size/3+sb.st_size/3, sb.st_size);
+       sleep(1);
+    }*/
+    //TODO ESTO DEBE PASAR DE FORMA SIMULTÁNEA
+    mapa1 = mapper(0, sb.st_size/3);
+    //filter(mapa1); Ir agregando cada string a la struct nueva, donde se usará un hash_code igual
+    //mapa2 = mapper(sb.st_size/3, sb.st_size/3+sb.st_size/3);
+    //filter(mapa2); Ir agregando cada string a la struct nueva, donde se usará un hash_code igual
+    //mapa3 = mapper(sb.st_size/3+sb.st_size/3, sb.st_size);
+    //filter(mapa3); Ir agregando cada string a la struct nueva, donde se usará un hash_code igual
+    busca(mapa1);
+    
+    int status;
+    /*waitpid(p1, &status, 0);
+    waitpid(p2, &status, 0);
+    waitpid(p3, &status, 0);
+    */
+    
+    
+    
     //IMPRIMIR TODO EL FILE EN LA CONSOLA:
 
     printf("\n");//*/
