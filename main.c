@@ -30,6 +30,16 @@ Mapa *crear_mapa(void){
     return mapa;
 }
 
+Mapa *filtrar_palabras(void){
+    Mapa *palabrasFiltradas =  malloc(sizeof(Mapa));
+    palabrasFiltradas->entradas = malloc(sizeof(Entrada*) * 4000);
+    for(int i = 0; i<1000; i++){
+        palabrasFiltradas->entradas[i] = NULL;
+    }
+    return palabrasFiltradas;
+}
+
+
 Mapa* mapper(int from, int to){
     int counter = 0;
     char* str = malloc(30);
@@ -55,7 +65,29 @@ void busca(Mapa *mapa){
     for(int i = 0; i<mapa->counterWords; i++){
         printf("The key of this map is: %s   .The value of the string is: %d\n", mapa->entradas[i]->key, mapa->entradas[i]->value);
     }
+    /*char* str = malloc(30);
+    str = "Home";
+    int mapCode = map_code(str);
+    printf("MapCode of %s is %d\n", str, mapCode);
+    printf("The num of appearances of %s is %d", mapa->entradas[mapCode]->key, mapa->entradas[mapCode]->value);*/
 
+}
+
+Mapa* reduce(Mapa *palabrasReducidas, Mapa *mapa){
+    int mapCode;
+    char* str = malloc(30);
+    for(int i = 0; i<mapa->counterWords; i++){
+        mapCode = map_code(mapa->entradas[i]->key);
+        if(palabrasReducidas->entradas[mapCode] != NULL){
+            palabrasReducidas->entradas[mapCode]->value++;
+        }else{
+            Entrada *palabraFiltrada = (Entrada *) malloc(sizeof(Entrada));
+            strcpy(palabraFiltrada->key,mapa->entradas[i]->key);
+            palabraFiltrada->value = 1;
+            palabrasReducidas->entradas[mapCode] = palabraFiltrada;
+        }
+    }
+    return palabrasReducidas;
 }
 
 
@@ -64,6 +96,8 @@ int main(int argc, const char* argv[]){
     Mapa *mapa1 = NULL;
     Mapa *mapa2 = NULL;
     Mapa *mapa3 = NULL;
+    Mapa *palabrasReducidas = NULL;
+    Mapa *palabrasOrdenadas = filtrar_palabras();
     int f_map = open("./Files/home.txt", O_RDONLY, S_IRUSR | S_IWUSR);
     if (fstat(f_map, &sb) == -1)
         perror("Error en size ");
@@ -74,23 +108,18 @@ int main(int argc, const char* argv[]){
     pid_t p1, p2, p3;
     /*if((p1=fork())== 0){
        mapa1 = mapper(0, sb.st_size/3);
-       sleep(1);
     }else if((p2=fork())==0){
        mapa2 = mapper(sb.st_size/3, sb.st_size/3+sb.st_size/3);
-       sleep(1);
     }else if((p3=fork())==0){
        mapa3 = mapper(sb.st_size/3+sb.st_size/3, sb.st_size);
-       sleep(1);
     }*/
     //TODO ESTO DEBE PASAR DE FORMA SIMULTÁNEA
-    mapa1 = mapper(0, sb.st_size/3);
-    //filter(mapa1); Ir agregando cada string a la struct nueva, donde se usará un hash_code igual
-    //mapa2 = mapper(sb.st_size/3, sb.st_size/3+sb.st_size/3);
-    //filter(mapa2); Ir agregando cada string a la struct nueva, donde se usará un hash_code igual
-    //mapa3 = mapper(sb.st_size/3+sb.st_size/3, sb.st_size);
-    //filter(mapa3); Ir agregando cada string a la struct nueva, donde se usará un hash_code igual
-    busca(mapa1);
-    
+    mapa1 = mapper(0, sb.st_size);
+    mapa2 = mapper(sb.st_size/3, sb.st_size/3+sb.st_size/3);
+    mapa3 = mapper(sb.st_size/3+sb.st_size/3, sb.st_size);
+    palabrasReducidas = reduce(palabrasOrdenadas, mapa1);
+    //busca(mapa1);
+    busca(palabrasReducidas);
     int status;
     /*waitpid(p1, &status, 0);
     waitpid(p2, &status, 0);
