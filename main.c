@@ -16,7 +16,7 @@ int map_code(char *key){
     long int value = 0;
     int i;
     for(i = 0; i < strlen(key); i++){
-        value = value * 1 + key[i];
+        value = value * 10 + key[i];
     }
     return value % 2000;
 }
@@ -33,7 +33,7 @@ Mapa *crear_mapa(void){
 Mapa *filtrar_palabras(void){
     Mapa *palabrasFiltradas =  malloc(sizeof(Mapa));
     palabrasFiltradas->entradas = malloc(sizeof(Entrada*) * 4000);
-    for(int i = 0; i<1000; i++){
+    for(int i = 0; i<5000; i++){
         palabrasFiltradas->entradas[i] = NULL;
     }
     return palabrasFiltradas;
@@ -62,14 +62,14 @@ Mapa* mapper(int from, int to){
 
 void busca(Mapa *mapa){
     
-    for(int i = 0; i<mapa->counterWords; i++){
+    /*for(int i = 0; i<mapa->counterWords; i++){
         printf("The key of this map is: %s   .The value of the string is: %d\n", mapa->entradas[i]->key, mapa->entradas[i]->value);
-    }
-    /*char* str = malloc(30);
+    }*/
+    char* str = malloc(30);
     str = "Home";
     int mapCode = map_code(str);
     printf("MapCode of %s is %d\n", str, mapCode);
-    printf("The num of appearances of %s is %d", mapa->entradas[mapCode]->key, mapa->entradas[mapCode]->value);*/
+    printf("The num of appearances of %s is %d", mapa->entradas[mapCode]->key, mapa->entradas[mapCode]->value);
 
 }
 
@@ -88,6 +88,7 @@ Mapa* reduce(Mapa *palabrasReducidas, Mapa *mapa){
         }
     }
     return palabrasReducidas;
+    
 }
 
 
@@ -118,6 +119,8 @@ int main(int argc, const char* argv[]){
     mapa2 = mapper(sb.st_size/3, sb.st_size/3+sb.st_size/3);
     mapa3 = mapper(sb.st_size/3+sb.st_size/3, sb.st_size);
     palabrasReducidas = reduce(palabrasOrdenadas, mapa1);
+    palabrasReducidas = reduce(palabrasReducidas, mapa2);
+    palabrasReducidas = reduce(palabrasReducidas, mapa3);
     //busca(mapa1);
     busca(palabrasReducidas);
     int status;
