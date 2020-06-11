@@ -62,15 +62,15 @@ Mapa* mapper(int from, int to){
 
 void busca(Mapa *mapa){
     
-    /*for(int i = 0; i<mapa->counterWords; i++){
+    for(int i = 0; i<mapa->counterWords; i++){
         printf("The key of this map is: %s   .The value of the string is: %d\n", mapa->entradas[i]->key, mapa->entradas[i]->value);
-    }*/
-    char* str = malloc(30);
+    }
+    /*char* str = malloc(30);
     str = "Home";
     int mapCode = map_code(str);
     printf("MapCode of %s is %d\n", str, mapCode);
     printf("The num of appearances of %s is %d", mapa->entradas[mapCode]->key, mapa->entradas[mapCode]->value);
-
+    */
 }
 
 Mapa* reduce(Mapa *palabrasReducidas, Mapa *mapa){
@@ -107,26 +107,38 @@ int main(int argc, const char* argv[]){
     //Guardamos en un apuntador el archivo
     file_in_memory = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, f_map, 0);
     pid_t p1, p2, p3;
-    /*if((p1=fork())== 0){
+    int status;
+    if((p1=fork())== 0){
        mapa1 = mapper(0, sb.st_size/3);
+       busca(mapa1);
+       sleep(1);
+       exit(0);
     }else if((p2=fork())==0){
        mapa2 = mapper(sb.st_size/3, sb.st_size/3+sb.st_size/3);
+       busca(mapa2);
+       sleep(1);
+       exit(0);
     }else if((p3=fork())==0){
        mapa3 = mapper(sb.st_size/3+sb.st_size/3, sb.st_size);
-    }*/
+       sleep(1);
+       exit(0);
+    }else{
+       waitpid(p1, &status, 0);
+       waitpid(p2, &status, 0);
+       waitpid(p3, &status, 0);
+    }
     //TODO ESTO DEBE PASAR DE FORMA SIMULTÁNEA
-    mapa1 = mapper(0, sb.st_size);
+    /*mapa1 = mapper(0, sb.st_size/3);
     mapa2 = mapper(sb.st_size/3, sb.st_size/3+sb.st_size/3);
-    mapa3 = mapper(sb.st_size/3+sb.st_size/3, sb.st_size);
-    palabrasReducidas = reduce(palabrasOrdenadas, mapa1);
+    mapa3 = mapper(sb.st_size/3+sb.st_size/3, sb.st_size);*/
+    
+    /*palabrasReducidas = reduce(palabrasOrdenadas, mapa1);
     palabrasReducidas = reduce(palabrasReducidas, mapa2);
     palabrasReducidas = reduce(palabrasReducidas, mapa3);
     //busca(mapa1);
-    busca(palabrasReducidas);
-    int status;
-    /*waitpid(p1, &status, 0);
-    waitpid(p2, &status, 0);
-    waitpid(p3, &status, 0);
+    busca(palabrasReducidas);*/
+    
+    /*
     */
     
     
