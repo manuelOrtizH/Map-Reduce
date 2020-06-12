@@ -18,7 +18,7 @@ int map_code(char *key){
     for(i = 0; i < strlen(key); i++){
         value = value * 10 + key[i];
     }
-    return value % sb.st_size;
+    return value % 2000;
 }
 
 Mapa *crear_mapa(void){
@@ -66,12 +66,10 @@ void lee(Mapa *mapa){
     }
 }
 
-void busca(Mapa *mapa){
-    char* str = malloc(30);
-    str = "goodnight";
+void busca(Mapa *mapa, char* str){
     int mapCode = map_code(str);
     printf("MapCode of %s is %d\n", str, mapCode);
-    printf("The num of appearances of %s is %d", mapa->entradas[mapCode]->key, mapa->entradas[mapCode]->value);
+    printf("The num of appearances of %s is %d\n", mapa->entradas[mapCode]->key, mapa->entradas[mapCode]->value);
 }
 
 void imprime(Mapa *mapa, Mapa *palabras){
@@ -119,7 +117,7 @@ int main(int argc, const char* argv[]){
     
     
     Mapa *palabrasOrdenadas = filtrar_palabras();
-    int f_map = open("./Files/home.txt", O_RDONLY, S_IRUSR | S_IWUSR);
+    int f_map = open("./Files/alice.txt", O_RDONLY, S_IRUSR | S_IWUSR);
     if (fstat(f_map, &sb) == -1)
         perror("Error en size ");
     printf("El tamaño del archivo es: %lld\n", sb.st_size);
@@ -165,7 +163,9 @@ int main(int argc, const char* argv[]){
     palabrasReducidas = reduce(palabrasReducidas, mapa3);
     imprime(palabrasReducidas, palabras);
 
+    
     printf("\n");
+    //busca(mapa3, "Pingu");
     munmap(file_in_memory, sb.st_size);
     close(f_map);
 

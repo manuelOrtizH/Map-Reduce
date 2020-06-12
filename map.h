@@ -6,6 +6,7 @@ typedef struct KeyValue{
 typedef struct Mapa{
     Entrada **entradas;
     int counterWords;
+    int total;
 } Mapa;
 
 
