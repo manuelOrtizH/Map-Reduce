@@ -1,4 +1,3 @@
-  
 #include <pthread.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -40,7 +39,6 @@ Mapa *filtrar_palabras(void){
     }
     return palabrasFiltradas;
 }
-
 
 Mapa* mapper(int from, int to){
     int counter = 0;
@@ -109,9 +107,6 @@ Mapa* reduce(Mapa *palabrasReducidas, Mapa *mapa){
     
 }
 
-
-
-
 int main(int argc, const char* argv[]){
     Mapa *mapa1 = NULL;
     Mapa *mapa2 = NULL;
@@ -120,15 +115,13 @@ int main(int argc, const char* argv[]){
     
     
     Mapa *palabrasOrdenadas = filtrar_palabras();
-    int f_map = open("./Files/alice.txt", O_RDONLY, S_IRUSR | S_IWUSR);
+    int f_map = open("./Files/home.txt", O_RDONLY, S_IRUSR | S_IWUSR);
     if (fstat(f_map, &sb) == -1)
         perror("Error en size ");
     printf("El tamaño del archivo es: %lld\n", sb.st_size);
     
-    //Mapa *palabras = mapper(0, sb.st_size);
-    //Guardamos en un apuntador el archivo
     file_in_memory = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, f_map, 0);
-    pid_t p1, p2, p3;
+    pid_t p1, p2, p3, p4;
     int status;
     Mapa *palabras = mapper(0, sb.st_size);
     
@@ -141,33 +134,19 @@ int main(int argc, const char* argv[]){
        palabrasReducidas = reduce(palabrasReducidas, mapa3);
        sleep(1);
        imprime(palabrasReducidas, palabras);
-       sleep(1);
+       
        exit(0);
     }else{
        waitpid(p1, &status, 0);
        waitpid(p2, &status, 0);
        waitpid(p3, &status, 0);
     }
-    
-    printf("Salí\n");
-    
-    //TODO ESTO DEBE PASAR DE FORMA SIMULTÁNEA
-    /*Mapa *palabras = mapper(0, sb.st_size); //Esta línea, si la pones arriba de los procesos, explota el programa. I don't know why
-    mapa1 = mapper(0, sb.st_size/3);
-    mapa2 = mapper(sb.st_size/3, sb.st_size/3+sb.st_size/3);
-    mapa3 = mapper(sb.st_size/3+sb.st_size/3, sb.st_size);
-    
-    palabrasReducidas = reduce(palabrasOrdenadas, mapa1);
-    palabrasReducidas = reduce(palabrasReducidas, mapa2);
-    palabrasReducidas = reduce(palabrasReducidas, mapa3);
-    imprime(palabrasReducidas, palabras);*/
 
+    printf("Se acabó la lectura\n");
     
     printf("\n");
-    //busca(mapa3, "Pingu");
     munmap(file_in_memory, sb.st_size);
     close(f_map);
-
     return 0;
 
 
