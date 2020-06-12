@@ -11,6 +11,9 @@
 #include "map.h"
 struct stat sb;
 char *file_in_memory;
+Mapa *mapa1 = NULL;
+Mapa *mapa2 = NULL;
+Mapa *mapa3 = NULL;
 
 int map_code(char *key){
     long int value = 0;
@@ -55,6 +58,7 @@ Mapa* mapper(int from, int to){
             counter++;
             memset(str,0,strlen(str)); 
         }
+        
     }
     mapa->counterWords = counter;
     return mapa;
@@ -62,14 +66,13 @@ Mapa* mapper(int from, int to){
 
 void lee(Mapa *mapa){
     for(int i = 0; i<mapa->counterWords; i++){
-        printf("The key of this map is: %s   .The value of the string is: %ld\n", mapa->entradas[i]->key, mapa->entradas[i]->value);
+        printf("%s : %ld\n", mapa->entradas[i]->key, mapa->entradas[i]->value);
     }
 }
 
 void busca(Mapa *mapa, char* str){
     int mapCode = map_code(str);
-    printf("MapCode of %s is %d\n", str, mapCode);
-    printf("The num of appearances of %s is %ld\n", mapa->entradas[mapCode]->key, mapa->entradas[mapCode]->value);
+    printf("%s : %ld\n", mapa->entradas[mapCode]->key, mapa->entradas[mapCode]->value);
 }
 
 void imprime(Mapa *mapa, Mapa *palabras){
@@ -108,14 +111,9 @@ Mapa* reduce(Mapa *palabrasReducidas, Mapa *mapa){
 }
 
 int main(int argc, const char* argv[]){
-    Mapa *mapa1 = NULL;
-    Mapa *mapa2 = NULL;
-    Mapa *mapa3 = NULL;
     Mapa *palabrasReducidas = NULL;
-    
-    
     Mapa *palabrasOrdenadas = filtrar_palabras();
-    int f_map = open("./Files/home.txt", O_RDONLY, S_IRUSR | S_IWUSR);
+    int f_map = open("./Files/alice.txt", O_RDONLY, S_IRUSR | S_IWUSR);
     if (fstat(f_map, &sb) == -1)
         perror("Error en size ");
     printf("El tamaño del archivo es: %lld\n", sb.st_size);
@@ -134,16 +132,15 @@ int main(int argc, const char* argv[]){
        palabrasReducidas = reduce(palabrasReducidas, mapa3);
        sleep(1);
        imprime(palabrasReducidas, palabras);
-       
+       busca(palabrasReducidas, "Alice");
        exit(0);
     }else{
        waitpid(p1, &status, 0);
        waitpid(p2, &status, 0);
        waitpid(p3, &status, 0);
-    }
+    } 
 
     printf("Se acabó la lectura\n");
-    
     printf("\n");
     munmap(file_in_memory, sb.st_size);
     close(f_map);
