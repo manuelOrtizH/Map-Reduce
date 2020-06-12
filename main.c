@@ -125,6 +125,7 @@ int main(int argc, const char* argv[]){
     
     if((p1=fork())== 0){
        mapa1 = mapper(0, sb.st_size/3);
+       lee(mapa1);
        palabrasReducidas = reduce(palabrasOrdenadas, mapa1);
        mapa2 = mapper(sb.st_size/3, sb.st_size/3+sb.st_size/3);
        palabrasReducidas = reduce(palabrasReducidas, mapa2);
