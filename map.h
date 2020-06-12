@@ -1,12 +1,12 @@
 typedef struct KeyValue{
-    char key[50]; //El string
-    int value; //Num de repeticiones en el texto (Siempre será uno)
+    char key[30]; //El string
+    long int value; //Num de repeticiones en el texto (Siempre será uno)
 } Entrada;
 
 typedef struct Mapa{
     Entrada **entradas;
-    int counterWords;
-    int total;
+    long counterWords;
+    long total;
 } Mapa;
 
 

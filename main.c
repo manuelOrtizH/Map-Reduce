@@ -1,3 +1,4 @@
+  
 #include <pthread.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -15,10 +16,11 @@ char *file_in_memory;
 int map_code(char *key){
     long int value = 0;
     int i;
+
     for(i = 0; i < strlen(key); i++){
-        value = value * 10 + key[i];
+        value = value * 37 + key[i];
     }
-    return value % 2000;
+    return value % sb.st_size;
 }
 
 Mapa *crear_mapa(void){
@@ -62,27 +64,27 @@ Mapa* mapper(int from, int to){
 
 void lee(Mapa *mapa){
     for(int i = 0; i<mapa->counterWords; i++){
-        printf("The key of this map is: %s   .The value of the string is: %d\n", mapa->entradas[i]->key, mapa->entradas[i]->value);
+        printf("The key of this map is: %s   .The value of the string is: %ld\n", mapa->entradas[i]->key, mapa->entradas[i]->value);
     }
 }
 
 void busca(Mapa *mapa, char* str){
     int mapCode = map_code(str);
     printf("MapCode of %s is %d\n", str, mapCode);
-    printf("The num of appearances of %s is %d\n", mapa->entradas[mapCode]->key, mapa->entradas[mapCode]->value);
+    printf("The num of appearances of %s is %ld\n", mapa->entradas[mapCode]->key, mapa->entradas[mapCode]->value);
 }
 
 void imprime(Mapa *mapa, Mapa *palabras){
     int code;
     int prev = 0;
-
+    sleep(1);
     for(int i = 0; i<palabras->counterWords; i++){
         code = map_code(palabras->entradas[i]->key);
         if(prev == code){//Ya se imprimió
             continue;
         }
         if(code>0){
-            printf("%s: %d\n", mapa->entradas[code]->key, mapa->entradas[code]->value);
+            printf("%s: %ld\n", mapa->entradas[code]->key, mapa->entradas[code]->value);
         }
         prev = code;
     }
@@ -109,6 +111,7 @@ Mapa* reduce(Mapa *palabrasReducidas, Mapa *mapa){
 
 
 
+
 int main(int argc, const char* argv[]){
     Mapa *mapa1 = NULL;
     Mapa *mapa2 = NULL;
@@ -127,33 +130,29 @@ int main(int argc, const char* argv[]){
     file_in_memory = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, f_map, 0);
     pid_t p1, p2, p3;
     int status;
+    Mapa *palabras = mapper(0, sb.st_size);
     
-    /*if((p1=fork())== 0){
+    if((p1=fork())== 0){
        mapa1 = mapper(0, sb.st_size/3);
        palabrasReducidas = reduce(palabrasOrdenadas, mapa1);
-       sleep(1);
-       exit(0);
-    }else if((p2=fork())==0){
        mapa2 = mapper(sb.st_size/3, sb.st_size/3+sb.st_size/3);
-       sleep(1);
        palabrasReducidas = reduce(palabrasReducidas, mapa2);
-       sleep(1);
-       exit(0);
-    }else if((p3=fork())==0){
        mapa3 = mapper(sb.st_size/3+sb.st_size/3, sb.st_size);
-       sleep(2);
        palabrasReducidas = reduce(palabrasReducidas, mapa3);
+       sleep(1);
+       imprime(palabrasReducidas, palabras);
        sleep(1);
        exit(0);
     }else{
        waitpid(p1, &status, 0);
        waitpid(p2, &status, 0);
        waitpid(p3, &status, 0);
-       
-    }*/
+    }
+    
     printf("Salí\n");
+    
     //TODO ESTO DEBE PASAR DE FORMA SIMULTÁNEA
-    Mapa *palabras = mapper(0, sb.st_size); //Esta línea, si la pones arriba de los procesos, explota el programa. I don't know why
+    /*Mapa *palabras = mapper(0, sb.st_size); //Esta línea, si la pones arriba de los procesos, explota el programa. I don't know why
     mapa1 = mapper(0, sb.st_size/3);
     mapa2 = mapper(sb.st_size/3, sb.st_size/3+sb.st_size/3);
     mapa3 = mapper(sb.st_size/3+sb.st_size/3, sb.st_size);
@@ -161,7 +160,7 @@ int main(int argc, const char* argv[]){
     palabrasReducidas = reduce(palabrasOrdenadas, mapa1);
     palabrasReducidas = reduce(palabrasReducidas, mapa2);
     palabrasReducidas = reduce(palabrasReducidas, mapa3);
-    imprime(palabrasReducidas, palabras);
+    imprime(palabrasReducidas, palabras);*/
 
     
     printf("\n");
